@@ -1,7 +1,12 @@
 ---
 - hosts: raspberries
+  gather_facts: no
 
   pre_tasks:
+    - name: Wait till RPI enters the running phase
+      wait_for_connection:
+
+  tasks:
     - name: Tell the user that the ansible playbook is running
       debug:
         msg: "The ansible playbook is running"
