@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  pi-emulator:
+    image: ptrsr/pi-ci
+    command: start
+    volumes:
+      - ./dist:/dist
+    ports:
+      - 2222:2222
+
+  ansible-playbook:
+    command: main.yml
+    image: philm/ansible_playbook
+    volumes:
+      - ./playbook:/ansible/playbooks
+
+volumes:
+  dist:
+  playbook:
