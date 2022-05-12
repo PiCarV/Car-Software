@@ -5,15 +5,32 @@ services:
     command: start
     volumes:
       - ./dist:/dist
+    networks:
+      connector:
+        ipv4_address: 172.16.238.10
     ports:
       - 2222:2222
 
   ansible-playbook:
-    command: main.yml
-    image: philm/ansible_playbook
+    command: -i inventory main.yml
+    image: andrerc1/ansible
+    depends_on:
+      - pi-emulator
     volumes:
-      - ./playbook:/ansible/playbooks
+      - ./ansible/playbooks:/ansible/playbooks
+    networks:
+      connector:
+        ipv4_address: 172.16.238.11
 
 volumes:
   dist:
   playbook:
+  hosts:
+
+networks:
+  connector:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.1

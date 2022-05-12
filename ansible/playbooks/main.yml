@@ -1,0 +1,13 @@
+---
+- hosts: raspberries
+
+  pre_tasks:
+    - name: Tell the user that the ansible playbook is running
+      debug:
+        msg: "The ansible playbook is running"
+
+    - name: create a test file called test.txt
+      file:
+        path: /home/pi/test.txt
+        state: touch
+        mode: "0644"
