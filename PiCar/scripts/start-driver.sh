@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/bin/python /home/pi/driver/driver.py
+/usr/bin/python3 /home/pi/driver/driver.py

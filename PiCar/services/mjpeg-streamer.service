@@ -5,7 +5,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/pi/run-mjpg-streamer.sh
+ExecStart=/home/pi/scripts/run-mjpg-streamer.sh
 Restart=always
 RestartSec=5
 

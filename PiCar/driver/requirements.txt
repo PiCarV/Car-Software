@@ -1,0 +1,3 @@
+adafruit-circuitpython-servokit
+rpimotorlib
+python-socketio

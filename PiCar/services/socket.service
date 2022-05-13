@@ -3,7 +3,7 @@ Description = Socket server for control
 After = network.target
 
 [Service]
-ExecStart = /home/pi/start-socket-server.sh
+ExecStart = /home/pi/scripts/start-socket-server.sh
 Restart = on-failure
 
 [Install]

@@ -1,18 +1,84 @@
 ---
 - hosts: raspberries
   gather_facts: no
+  become: yes
 
   pre_tasks:
     - name: Wait till RPI enters the running phase
       wait_for_connection:
 
   tasks:
-    - name: Tell the user that the ansible playbook is running
-      debug:
-        msg: "The ansible playbook is running"
+    - name: Update the RPI
+      apt:
+        update_cache: yes
 
-    - name: create a test file called test.txt
+    - name: Copy the files to the RPI
+      copy:
+        src: /picarfiles/
+        dest: /home/pi/
+        follow: yes
+
+    - name: install nodejs dependencies
+      apt:
+        name: nodejs
+        state: present
+
+    - name: install npm
+      apt:
+        name: npm
+        state: present
+
+    - name: install python3
+      apt:
+        name: python3
+        state: present
+
+    - name: install python3-pip
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Run the socket servers package.json
+      npm:
+        path: /home/pi/server
+
+    - name: Install the dependencies for the driver
+      pip:
+        requirements: /home/pi/driver/requirements.txt
+        executable: pip3
+
+    - name: lookup script files with .sh extension
+      find:
+        paths: /home/pi/scripts/
+        file_type: file
+        patterns: "*.sh"
+      register: filelist
+
+    - name: change permissions on the script files
       file:
-        path: /home/pi/test.txt
-        state: touch
-        mode: "0644"
+        path: "{{ item.path }}"
+        state: file
+        mode: "0775"
+      with_items: "{{ filelist.files }}"
+
+    - name: Move the services files to the correct location
+      copy:
+        src: /home/pi/services/
+        dest: /etc/systemd/system/
+        remote_src: yes
+
+    - name: Enable the driver service
+      systemd:
+        name: driver
+        enabled: yes
+        state: started
+
+    - name: Enable the socket server service
+      systemd:
+        name: socket
+        enabled: yes
+        state: started
+
+    - name: reload the systemctl daemon to enable the services
+      systemd:
+        daemon_reload: yes
