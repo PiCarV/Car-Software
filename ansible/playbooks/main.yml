@@ -82,3 +82,6 @@
     - name: reload the systemctl daemon to enable the services
       systemd:
         daemon_reload: yes
+
+    - name: Shutdown the RPI
+      shell: shutdown -h now
