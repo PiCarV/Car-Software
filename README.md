@@ -1,4 +1,4 @@
-# Car Software
+# 🏎️ Car Software 
 
 This repository contains the tools to create a custom Raspberry Pi image that runs on a PiCarV. The software running in the image provides control over the PiCar and also streams video from the PiCar
 
