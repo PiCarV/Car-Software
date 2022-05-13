@@ -83,5 +83,8 @@
       systemd:
         daemon_reload: yes
 
+    - name: Enable I2C on the Raspberry Pi
+      shell: "raspi-config nonint do_i2c 0"
+
     - name: Shutdown the RPI
       shell: shutdown -h now
