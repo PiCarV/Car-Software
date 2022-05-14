@@ -1,4 +1,4 @@
-# 🏎️ Car Software 
+# 🏎️ Car Software
 
 This repository contains the tools to create a custom Raspberry Pi image that runs on a PiCarV. The software running in the image provides control over the PiCar and also streams video from the PiCar
 
@@ -30,12 +30,6 @@ These need to be installed to use the program. You can use winget (windows) or a
 
 `winget install -e --id Docker.DockerDesktop`
 
-### [🖥️ QEMU](https://www.qemu.org/download/)
-
-`winget install -e --id SoftwareFreedomConservancy.QEMU`
-
-May need to be added to path if on Windows
-
 ## How to use
 
 1. Clone or download the repository
@@ -54,8 +48,4 @@ May need to be added to path if on Windows
 
 Look for the stack called `car-software` you can click on the stack and you should see 2 containers inside. You can monitor the Ansible container, when it is done both containers should stop.
 
-5. Create your final bootable image
-
-`qemu-img convert -f qcow2 -O raw dist/distro.qcow2 dist/distro.img`
-
-A file called distro.img should appear, this can be booted on a Raspberry Pi
+5. A file called PiCarV.img should appear in the dist folder. This is your final bootable image.

@@ -86,5 +86,61 @@
     - name: Enable I2C on the Raspberry Pi
       shell: "raspi-config nonint do_i2c 0"
 
+    - name: Remove the swap partition
+      shell: "swapoff -a"
+
     - name: Shutdown the RPI
       shell: shutdown -h now
+      ignore_unreachable: true
+
+    - name: Install qemu on local machine
+      local_action:
+        module: apk
+        name: qemu-img
+        update_cache: yes
+
+    - name: Use qemu-img to create a disk image retry until the pi fully shuts down
+      local_action:
+        module: shell
+        cmd: qemu-img convert -f qcow2 -O raw /picarimage/distro.qcow2 /picarimage/PiCarV.img
+      register: result
+
+      retries: 300
+      delay: 1
+      until: result.rc == 0
+#    - name: Install PiShrink Dependencies parted
+#      local_action:
+#        module: apk
+#        name: parted
+#
+#    - name: Install PiShrink Dependencies tune2fs
+#      local_action:
+#        module: apk
+#        name: e2fsprogs-extra
+###############################################################################################
+#### This block doesn't work right now because pishrink doesn't work with swap partitions #####
+###############################################################################################
+# - name: Install PiShrink
+#   local_action:
+#     module: get_url
+#     url: https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+#     dest: /usr/local/bin
+#
+# - name: Make the PiShrink script executable
+#   local_action:
+#     module: file
+#     path: /usr/local/bin/pishrink.sh
+#     state: file
+#     mode: "0775"
+#
+# - name: Change the permissions of the image file
+#   local_action:
+#     module: file
+#     path: /picarimage/PiCarV.img
+#     state: file
+#     mode: "0777"
+#
+# - name: Run PiShrink
+#   local_action:
+#     module: shell
+#     cmd: "pishrink.sh /picarimage/PiCarV.img"
