@@ -12,6 +12,10 @@
       apt:
         update_cache: yes
 
+    #####################
+    # SETUP STARTS HERE #
+    #####################
+
     - name: Copy the files to the RPI
       copy:
         src: /picarfiles/
@@ -41,6 +45,11 @@
     - name: Run the socket servers package.json
       npm:
         path: /home/pi/server
+
+    - name: NPM run build
+      command: npm run build
+      args:
+        chdir: /home/pi/server
 
     - name: Install the dependencies for the driver
       pip:
@@ -86,8 +95,54 @@
     - name: Enable I2C on the Raspberry Pi
       shell: "raspi-config nonint do_i2c 0"
 
-    - name: Remove the swap partition
-      shell: "swapoff -a"
+    ################################
+    # SETUP THE AUTOMATIC HOSTSPOT #
+    ################################
+
+    - name: Install hostapd
+      apt:
+        name: hostapd
+        state: present
+
+    - name: Install dnsmasq
+      apt:
+        name: dnsmasq
+        state: present
+
+    - name: Turn off the hostapd service
+      service:
+        name: hostapd
+        state: stopped
+
+    - name: Turn off the dnsmasq service
+      service:
+        name: dnsmasq
+        state: stopped
+
+    - name: Move the dhcpcd.conf file to the correct location
+      copy:
+        src: /home/pi/configs/dhcpcd.conf
+        dest: /etc/dhcpcd.conf
+        remote_src: yes
+
+    - name: Move the dnsmasq.conf file to the correct location
+      copy:
+        src: /home/pi/configs/dnsmasq.conf
+        dest: /etc/dnsmasq.conf
+        remote_src: yes
+
+    - name: Move the hostapd.conf file to the correct location
+      copy:
+        src: /home/pi/configs/hostapd.conf
+        dest: /etc/hostapd/hostapd.conf
+        remote_src: yes
+
+    - name: Make sure host apd knows where to find the config file
+      lineinfile:
+        path: /etc/default/hostapd
+        regexp: "^#DAEMON_CONF="
+        line: DAEMON_CONF="/etc/hostapd/hostapd.conf"
+        state: present
 
     - name: Shutdown the RPI
       shell: shutdown -h now

@@ -7,3 +7,4 @@ ansible_connection=ssh
 ansible_user=pi
 ansible_password=raspberry
 ansible_port=2222
+ansible_ssh_pipelining=true

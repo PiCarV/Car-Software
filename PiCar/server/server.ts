@@ -1,22 +1,23 @@
 import { Server } from "socket.io";
-import http from "http";
+import * as http from "http";
 
 const httpServer = http.createServer();
+// @ts-ignore
 const io = new Server(httpServer, { cors: { origins: ["*"] } });
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: any) => {
   console.log("Client Connected");
 
-  socket.on("drive", (data) => {
+  socket.on("drive", (data: any) => {
     io.sockets.emit("drive", data);
-  }); //It's about drive it's about power
-  socket.on("steer", (data) => {
+  });
+  socket.on("steer", (data: any) => {
     io.sockets.emit("steering", data);
   });
-  socket.on("pan", (data) => {
+  socket.on("pan", (data: any) => {
     io.sockets.emit("pan", data);
   });
-  socket.on("tilt", (data) => {
+  socket.on("tilt", (data: any) => {
     io.sockets.emit("pan", data);
   });
 });
