@@ -48,4 +48,7 @@ These need to be installed to use the program. You can use winget (windows) or a
 
 Look for the stack called `car-software` you can click on the stack and you should see 2 containers inside. You can monitor the Ansible container, when it is done both containers should stop.
 
+Expect this too take a long time, we're emulating a virtual raspberry pi!
+You could technically set this up to configure a real raspberry pi too.
+
 5. A file called PiCarV.img should appear in the dist folder. This is your final bootable image.

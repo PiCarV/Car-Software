@@ -22,6 +22,9 @@
         dest: /home/pi/
         follow: yes
 
+    - name: increase npm timeout to fix slow connections
+      shell: npm config set fetch-retry-maxtimeout 60000 -g
+
     - name: install nodejs dependencies
       apt:
         name: nodejs
@@ -88,6 +91,18 @@
         enabled: yes
         state: started
 
+    - name: Enable the mjpeg streamer service
+      systemd:
+        name: mjpeg-streamer
+        enabled: yes
+        state: started
+
+    - name: Enable the hotspot service
+      systemd:
+        name: hotspot
+        enabled: yes
+        state: started
+
     - name: reload the systemctl daemon to enable the services
       systemd:
         daemon_reload: yes
@@ -99,50 +114,77 @@
     # SETUP THE AUTOMATIC HOSTSPOT #
     ################################
 
-    - name: Install hostapd
+    - name: Install dependencies for the hostspot
       apt:
-        name: hostapd
+        pkg:
+          - dnsmasq
+          - hostapd
         state: present
 
-    - name: Install dnsmasq
-      apt:
-        name: dnsmasq
-        state: present
+    - name: Install pip dependencies for the hostspot
+      pip:
+        requirements: /home/pi/hotspot/requirements.txt
+        executable: pip3
 
-    - name: Turn off the hostapd service
-      service:
+    - name: Run the python script to configure the hotspot
+      shell: "python3 /home/pi/hotspot/hotspot.py"
+
+    - name: Unmask the hostapd service
+      shell: "systemctl unmask hostapd"
+
+    - name: Enable the hostapd service
+      systemd:
         name: hostapd
-        state: stopped
+        enabled: yes
+        state: started
+      ignore_errors: yes
 
-    - name: Turn off the dnsmasq service
-      service:
+    - name: Add lines to end of dhcpcd.conf
+      blockinfile:
+        path: /etc/dhcpcd.conf
+        marker: # {mark} ANSIBLE MANAGED BLOCK
+        block: |
+          interface wlan0
+          static ip_address=192.168.0.10/24
+          denyinterfaces eth0
+          denyinterfaces wlan0
+
+    - name: Unblock wifi
+      shell: "rfkill unblock wifi"
+
+    - name: Enable the dnsmasq service
+      systemd:
         name: dnsmasq
-        state: stopped
+        enabled: yes
+        state: started
 
-    - name: Move the dhcpcd.conf file to the correct location
+    - name: Append lines to dnsmasq.conf
       copy:
-        src: /home/pi/configs/dhcpcd.conf
-        dest: /etc/dhcpcd.conf
-        remote_src: yes
-
-    - name: Move the dnsmasq.conf file to the correct location
-      copy:
-        src: /home/pi/configs/dnsmasq.conf
+        src: /home/pi/hotspot/dnsmasq.conf
         dest: /etc/dnsmasq.conf
         remote_src: yes
 
-    - name: Move the hostapd.conf file to the correct location
-      copy:
-        src: /home/pi/configs/hostapd.conf
-        dest: /etc/hostapd/hostapd.conf
-        remote_src: yes
+    ########################
+    # SETUP MJPEG STREAMER #
+    ########################
 
-    - name: Make sure host apd knows where to find the config file
-      lineinfile:
-        path: /etc/default/hostapd
-        regexp: "^#DAEMON_CONF="
-        line: DAEMON_CONF="/etc/hostapd/hostapd.conf"
+    - name: Install u-streamer dependencies
+      apt:
+        pkg:
+          - libevent-dev
+          - libjpeg62-turbo-dev
+          - libbsd-dev
+          - libsystemd-dev
+          - git
         state: present
+
+    - name: Clone the u-streamer repository
+      git:
+        dest: /home/pi/ustreamer
+        repo: https://github.com/pikvm/ustreamer.git
+
+    - name: run make in the ustreamer repository
+      shell: "cd /home/pi/ustreamer && make"
 
     - name: Shutdown the RPI
       shell: shutdown -h now

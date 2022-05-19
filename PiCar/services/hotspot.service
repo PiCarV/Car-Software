@@ -1,0 +1,10 @@
+[Unit]
+Description = Creates a hotspot with custom ssid.
+After = network.target
+
+[Service]
+ExecStart = /usr/bin/python3 /home/pi/hotspot/hotspot.py
+Restart = on-failure
+
+[Install]
+WantedBy = multi-user.target

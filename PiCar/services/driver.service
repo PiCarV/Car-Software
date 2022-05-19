@@ -3,7 +3,8 @@ Description = Client for controlling low level features through socket server
 After = network.target socket.service
 
 [Service]
-ExecStart = /home/pi/scrips/start-driver.sh
+User=pi
+ExecStart = /usr/bin/python3 /home/pi/driver/driver.py
 Restart = on-failure
 
 [Install]
