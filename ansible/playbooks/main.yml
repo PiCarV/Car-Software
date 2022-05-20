@@ -22,9 +22,6 @@
         dest: /home/pi/
         follow: yes
 
-    - name: increase npm timeout to fix slow connections
-      shell: npm config set fetch-retry-maxtimeout 60000 -g
-
     - name: install nodejs dependencies
       apt:
         name: nodejs
@@ -44,6 +41,9 @@
       apt:
         name: python3-pip
         state: present
+
+    - name: increase npm timeout to fix slow connections
+      shell: npm config set fetch-retry-maxtimeout 60000 -g
 
     - name: Run the socket servers package.json
       npm:
