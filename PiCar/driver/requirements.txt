@@ -1,3 +1,4 @@
 adafruit-circuitpython-servokit
 rpimotorlib
 python-socketio
+python-socketio[client]
